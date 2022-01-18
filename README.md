@@ -9,6 +9,10 @@ Making 3D room with interactive features
 
 ## 1. Basic structure
 
+react에서 three.js의 기능들을 조금 더 원활하게 사용할 수 있도록 해주는 react-three-fiber를 기반으로 3D 모델링과 다양한 상호작용을 할 수 있는 웹페이지를 제작했다.
+
+'개발자의 방'을 메인 주제로 디자인과 기능을 구현했다.
+
 ## 2. 3D Modeling
 
 ### a) Fusion 360
@@ -48,6 +52,8 @@ Fusion 360에서 모델링한 3D 객체를 가져온 뒤, blender 자체적으�
 제공되는 그림판에서 다양한 색의 펜을 이용해 자유롭게 그림을 그리고, 완성된 그림을 벽면의 액자에 게시할 수 있다.
 
 ### c) Bookmarks
+
+
 
 ### d) Adjusting Light
 
