@@ -30,9 +30,11 @@ Fusion 360에서 모델링한 3D 객체를 가져온 뒤, blender 자체적으�
 
 ### c) react-three-fiber
 
+![image](https://user-images.githubusercontent.com/79900341/149934537-e6fdb89b-24a3-423f-b793-66bdecaf5ee0.png)
+
 생성된 gltf 파일을 gltfjsx 툴을 이용해 react-three-fiber에서 바로 사용할 수 있는 js 형식의 파일로 변환했다.
 
-
+이제 js파일에 존재하는 수많은 mesh들을 reacte-three-fiber를 이용해 조작해 사용자와의 interaction을 생성할 수 있다.
 
 ## 3. Features
 
