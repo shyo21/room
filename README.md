@@ -59,4 +59,6 @@ Fusion 360에서 모델링한 3D 객체를 가져온 뒤, blender 자체적으�
 
 ### d) Adjusting Light
 
+기본 상태의 조명은 노을빛의 강한 조명을 측면에서 조사하고, 
+
 ### e) Physics
