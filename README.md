@@ -45,6 +45,8 @@ Fusion 360에서 모델링한 3D 객체를 가져온 뒤, blender 자체적으�
 
 ### b) PaintBrush
 
+제공되는 그림판에서 다양한 색의 펜을 이용해 자유롭게 그림을 그리고, 완성된 그림을 벽면의 액자에 게시할 수 있다.
+
 ### c) Bookmarks
 
 ### d) Adjusting Light
