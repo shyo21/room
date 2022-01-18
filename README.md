@@ -1,4 +1,4 @@
-# CS496 MadCamp Week 3
+# CS496-MadCamp-Week-3
 
 
 Making 3D room with interactive features
@@ -18,6 +18,6 @@ Making 3D room with interactive features
 
 ### c) Bookmarks
 
-### 4) Adjusting Light
+### d) Adjusting Light
 
-### 5) Physics
+### e) Physics
