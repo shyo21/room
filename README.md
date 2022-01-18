@@ -12,7 +12,7 @@ Making 3D room with interactive features
 
 ### a) Fusion 360
 
-![image](https://user-images.githubusercontent.com/79900341/149932898-b62ef2e8-31a7-4cc7-afbb-09e261e3707a.png)
+![image](https://user-images.githubusercontent.com/79900341/149933676-934bf9a8-aba6-430c-a365-7d4158a2cf13.png)
 
 가장 널리 사용되는 3D 모델링 툴인 blender는 디자이너에게 무한에 가까운 자유도를 제공하는 강력한 기능들을 가지고 있지만, 초보자가 직관적으로 사용하기에는 어렵다.
 
