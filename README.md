@@ -53,7 +53,9 @@ Fusion 360에서 모델링한 3D 객체를 가져온 뒤, blender 자체적으�
 
 ### c) Bookmarks
 
+3개의 링크를 북마크에 저장할 수 있다.
 
+벽면의 액자를 클릭해 저장한 각 링크로 이동할 수 있다.
 
 ### d) Adjusting Light
 
