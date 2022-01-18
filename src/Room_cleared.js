@@ -1,10 +1,28 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState, useEffect, useMemo } from 'react'
 import { useGLTF, Html } from '@react-three/drei'
-import { KernelSize, Resizer } from 'postprocessing'
-import { EffectComposer, Bloom, SelectiveBloom } from '@react-three/postprocessing'
 import Youtube from './Youtube'
 import * as THREE from 'three'
-import { useFrame } from '@react-three/fiber'
+import { useLoader, useFrame, useThree, extend } from '@react-three/fiber'
+import { Geometry } from "three-stdlib"
+import { TextureLoader } from "three/src/loaders/TextureLoader.js"
+import { usePlane, useBox, useConvexPolyhedron } from '@react-three/cannon';
+import { useDragConstraint } from './Drag'
+
+
+
+const toConvexPolyhedron = (geoArray) => {
+  // geoArray : [[geometry1,[position1]],[geometry2,[position2], ...]
+  const val = [[],[],[]];
+  for(let i=0 ; i<geoArray.length ; i++){
+    const geo = new Geometry().fromBufferGeometry(geoArray[i][0]);
+    geo.mergeVertices();
+    val[0].push(...(geo.vertices.map((v) => [v.x+geoArray[i][1][0], v.y+geoArray[i][1][1], v.z+geoArray[i][1][2]])));
+    // vertices are consist of x,y,z vector coordinate
+    val[1].push(...(geo.faces.map((f) => [f.a, f.b, f.c])));
+    // faces are consist of index of vertices
+  }
+  return val;
+};
 
 
 function damp(target, to, step, delta, v = new THREE.Vector3()) {
@@ -23,24 +41,124 @@ export default function Model(props) {
 
   const { nodes, materials } = useGLTF('/room_cleared.gltf')
 
-  const [musicClick, setMusicClick] = useState(false)
+  const [musicClick, setMusicClick] = useState(0)
   const [hover, setHover] = useState(false)
   const [comClick, setComClick] = useState(false)
 
+  
+
   useEffect(() => void (document.body.style.cursor = hover ? 'pointer' : 'auto'), [hover])
 
-  useFrame((state, delta) => {
-    const step = 4
-    state.camera.fov = THREE.MathUtils.damp(state.camera.fov, comClick ? 20 : 50, step, delta)
+  const { invalidate } = useThree();
+  const destination = useMemo(() => new THREE.Vector3(), [])
+
+  useEffect(() => {
+    destination.set(70, 50, 10);
+    invalidate();
+  }, [invalidate, destination]);
+
+
+  // Bookmark manage
+  useEffect(()=>{
+    localStorage.setItem('githubLink',"https://github.com/hye1ee/Interactive-Room");
+    localStorage.setItem('piclongLink',"https://www.apple.com/shop/buy-mac/imac");
+    localStorage.setItem('picshortLink',"https://ko.reactjs.org/");
+
+    localStorage.setItem('music1',"https://www.youtube.com/watch?v=cyF9W8ZjbR0");
+    localStorage.setItem('music2',"https://www.youtube.com/watch?v=Uc20YSleGBw");
+    localStorage.setItem('music3',"https://www.youtube.com/watch?v=VVc7X4lSO4w");
+  },[]);
+
+  useFrame((state) => {
+    const step = 0.1
     if (comClick) {
-      damp(state.camera.position, [100,100,100], step, delta)
-      state.camera.lookAt(100,100,100)
+      state.camera.fov = THREE.MathUtils.lerp(state.camera.fov, 20, step)
+      state.camera.position.lerp(destination,step)
+      state.camera.updateProjectionMatrix()
     }
+    state.camera.fov = THREE.MathUtils.lerp(state.camera.fov, 50, step)
     state.camera.updateProjectionMatrix()
   })
 
+
+
+    // draw img load
+    const img = localStorage.getItem('imgValue');
+
+    const path = (img)?img : 'logo192.png';
+    const drawTexture = useLoader(TextureLoader, path); // set path from public directory
+    const githubTexture = useLoader(TextureLoader, 'img/github.jpeg');
+    const reactTexture = useLoader(TextureLoader, 'img/mac.jpg');
+    const friendTexture = useLoader(TextureLoader, 'img/friend.jpg');
+    const blueTexture = useLoader(TextureLoader, 'img/blue.jpg');
+    const [imageShake, setImageShake] = useState(0);
+    const imageRef = useRef(null);
+    //
+
+    // physics
+    const [planeRef] = usePlane(()=>({ mass : 0, type :'Static', rotation : [-Math.PI / 2, 0, 0],  position : [0,5,0]}));
+    // physics : shoe1
+    const shoe1Geo = useMemo(()=>toConvexPolyhedron([[nodes.shoe_bottom1.geometry,[26.6, 6.1, 9]],[nodes.shoe_top1.geometry,[26.6, 7.75, 10.8]]]), [nodes]);
+    const [shoe1Ref] = useConvexPolyhedron(() => ({ mass: 0, args : shoe1Geo, linearDamping: 0.95, angularDamping: 0.95 }));
+    const shoe1Bind = useDragConstraint(shoe1Ref);
+    // physics : chair
+    const chairGeo = useMemo(()=>toConvexPolyhedron(
+      [[nodes.chair_backbody.geometry,[1.58, 27, -13.83]],
+      [nodes.chair_backleg1.geometry,[3.31, 19, -18.57]],
+      [nodes.chair_backleg2.geometry,[-0.11, 19, -9.17]],
+      [nodes.chair_leg1.geometry,[-7.5, 9, -22.5]],
+      [nodes.chair_leg2.geometry,[1.9, 9, -19.08]],
+      [nodes.chair_leg3.geometry,[-10.92, 9, -13.1]],
+      [nodes.chair_leg4.geometry,[-1.52, 9, -9.68]],
+      [nodes.chair_sit.geometry,[-4.51, 14.5, -16.09]]]
+    ), [nodes]);
+    const [chairRef] = useConvexPolyhedron(() => ({ mass: 0, args : chairGeo, linearDamping: 0.95, angularDamping: 0.95 }));
+    const chairBind = useDragConstraint(chairRef);
+    // physics : rug
+    const rugGeo = useMemo(()=>toConvexPolyhedron([[nodes.rug.geometry,[15.79, 5.25, 17.8]]]), [nodes]);
+    const [rugRef] = useConvexPolyhedron(() => ({ mass: 0, args : rugGeo, linearDamping: 0.95, angularDamping: 0.95 }));
+
   return (
     <group ref={group} {...props} dispose={null}>
+
+      <mesh ref={planeRef}/>
+
+
+      <group ref={rugRef} dispose={null}>
+        <mesh castShadow receiveShadow geometry={nodes.rug.geometry} material={nodes.rug.material}
+          position={[15.79, 5.25, 17.8]}/>
+      </group>
+
+      <group ref={chairRef} dispose={null} {...chairBind}>
+      <mesh castShadow receiveShadow geometry={nodes.chair_backbody.geometry} material={nodes.chair_backbody.material}
+        position={[1.58, 27, -13.83]} />
+      <mesh castShadow receiveShadow geometry={nodes.chair_backleg1.geometry} material={nodes.chair_backleg1.material}
+        position={[3.31, 19, -18.57]} />
+      <mesh castShadow receiveShadow geometry={nodes.chair_backleg2.geometry} material={nodes.chair_backleg2.material}
+        position={[-0.11, 19, -9.17]} />
+      <mesh castShadow receiveShadow geometry={nodes.chair_leg1.geometry} material={nodes.chair_leg1.material}
+        position={[-7.5, 9, -22.5]}  />
+      <mesh castShadow receiveShadow geometry={nodes.chair_leg2.geometry} material={nodes.chair_leg2.material}
+        position={[1.9, 9, -19.08]} />
+      <mesh castShadow receiveShadow geometry={nodes.chair_leg3.geometry} material={nodes.chair_leg3.material}
+        position={[-10.92, 9, -13.1]}/>
+      <mesh castShadow receiveShadow geometry={nodes.chair_leg4.geometry} material={nodes.chair_leg4.material}
+        position={[-1.52, 9, -9.68]} />
+      <mesh castShadow receiveShadow geometry={nodes.chair_sit.geometry} material={nodes.chair_sit.material}
+        position={[-4.51, 14.5, -16.09]} />
+      </group>
+
+      <group ref={shoe1Ref} dispose={null} {...shoe1Bind}>
+        <mesh
+          castShadow receiveShadow
+          geometry={nodes.shoe_bottom1.geometry} material={nodes.shoe_bottom1.material}
+          position={[26.6, 6.1, 9]}/>
+        <mesh
+          castShadow receiveShadow
+          geometry={nodes.shoe_top1.geometry}  material={nodes.shoe_top1.material}
+          position={[26.6, 7.75, 10.8]}/>
+      </group>
+
 
       <mesh
         castShadow
@@ -325,7 +443,7 @@ export default function Model(props) {
       <mesh
         castShadow
         receiveShadow
-        onClick={() => {setMusicClick(!musicClick)}}
+        onClick={() => {setMusicClick(Number(!musicClick))}}
         onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
         onPointerOut={() => setHover(false)}
         geometry={nodes.button_push1.geometry}
@@ -335,6 +453,9 @@ export default function Model(props) {
       <mesh
         castShadow
         receiveShadow
+        onClick={() => {if(musicClick===1)setMusicClick(3); else setMusicClick(musicClick-1)}}
+        onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
+        onPointerOut={() => setHover(false)}
         geometry={nodes.button_push2.geometry}
         material={nodes.button_push2.material}
         position={[-22, 29, -27]}
@@ -342,6 +463,9 @@ export default function Model(props) {
       <mesh
         castShadow
         receiveShadow
+        onClick={() => {if(musicClick===3)setMusicClick(1); else setMusicClick(musicClick+1)}}
+        onPointerOver={(e) => (e.stopPropagation(), setHover(true))}
+        onPointerOut={() => setHover(false)}
         geometry={nodes.button_push3.geometry}
         material={nodes.button_push3.material}
         position={[-22, 29, -33]}
@@ -367,63 +491,10 @@ export default function Model(props) {
         material={nodes.button_shape3.material}
         position={[-22, 30.25, -32.73]}
       />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_backbody.geometry}
-        material={nodes.chair_backbody.material}
-        position={[1.58, 27, -13.83]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_backleg1.geometry}
-        material={nodes.chair_backleg1.material}
-        position={[3.31, 19, -18.57]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_backleg2.geometry}
-        material={nodes.chair_backleg2.material}
-        position={[-0.11, 19, -9.17]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_leg1.geometry}
-        material={nodes.chair_leg1.material}
-        position={[-7.5, 9, -22.5]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_leg2.geometry}
-        material={nodes.chair_leg2.material}
-        position={[1.9, 9, -19.08]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_leg3.geometry}
-        material={nodes.chair_leg3.material}
-        position={[-10.92, 9, -13.1]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_leg4.geometry}
-        material={nodes.chair_leg4.material}
-        position={[-1.52, 9, -9.68]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.chair_sit.geometry}
-        material={nodes.chair_sit.material}
-        position={[-4.51, 14.5, -16.09]}
-      />
-      <mesh
+
+
+
+<mesh
         castShadow
         receiveShadow
         onClick={() => {setComClick(!comClick)}}
@@ -452,10 +523,11 @@ export default function Model(props) {
         {musicClick && 
           <Html className="content" rotation={[0, Math.PI/2, 0]} position={[0.4,0,0]} transform occlude>
             <div className="wrapper">
-              <Youtube />
+              <Youtube musicClick={musicClick} />
             </div>
           </Html>}
       </mesh>
+
       <mesh
         castShadow
         receiveShadow
@@ -561,27 +633,45 @@ export default function Model(props) {
         material={nodes.floor_wood9.material}
         position={[0, 4.49, 42.02]}
       />
+
+      <mesh ref={imageRef} position={[-44.75, 66, -32]}
+      onPointerEnter={()=>setImageShake(1)} 
+      onPointerLeave={()=>setImageShake(0)}
+      onClick={()=>props.setDraw((val)=>!val)}
+      receiveShadow rotation={[0,Math.PI/2,0]}>
+        <boxBufferGeometry attach="geometry" args={[16, 20, 1]} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" map={drawTexture} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+      </mesh>
+
+
       <mesh
         castShadow
-        receiveShadow
-        geometry={nodes.image1.geometry}
-        material={nodes.image1.material}
-        position={[-44.75, 66, -32]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.image2.geometry}
-        material={nodes.image2.material}
-        position={[-44.75, 75.22, -13.62]}
-      />
+        receiveShadow rotation={[0,Math.PI/2,0]}
+        position={[-44.75, 75.22, -13.62]}>
+        <boxBufferGeometry attach="geometry" args={[17, 17, 1]} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" map={blueTexture} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={"#dddddd"} />
+      </mesh>
+
+
       <mesh
         castShadow
         receiveShadow
         geometry={nodes.light_main.geometry}
-        material={materials['6 yellow']}
-        position={[-36, 39.5, 1]}
-      />
+        position={[-36, 39.5, 1]} onClick={()=>props.setLight(val=>!val)}
+      >
+        <meshBasicMaterial color="yellow" attach="material" transparent opacity={0.8} />
+      </mesh>
+
       <mesh
         castShadow
         receiveShadow
@@ -630,113 +720,144 @@ export default function Model(props) {
           castShadow
           receiveShadow
           geometry={nodes.neon_hello1.geometry}
-          material={nodes.neon_hello1.material}
-          position={[17.52, 84.28, -44.25]}
-        />
+          position={[17.52, 84.28, -44.25]}>
+          <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_hello2.geometry}
           material={nodes.neon_hello2.material}
-          position={[24.49, 84.01, -44.23]}
-        />
+          position={[24.49, 84.01, -44.23]}>
+            <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_hello3.geometry}
           material={nodes.neon_hello3.material}
           position={[28.49, 85.14, -44.31]}
-        />
+        >
+          <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_hello4.geometry}
           material={nodes.neon_hello4.material}
           position={[31.26, 85.14, -44.31]}
-        />
+        >
+          <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
+
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_hello5.geometry}
           material={nodes.neon_hello5.material}
           position={[33.97, 84.01, -44.29]}
-        />
+        >
+          <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_world1.geometry}
           material={nodes.neon_world1.material}
           position={[14.7, 75.04, -44.28]}
-        />
+        >
+            <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_world2.geometry}
           material={nodes.neon_world2.material}
           position={[21.89, 72.88, -44.29]}
-        />
+        >
+            <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_world3.geometry}
           material={nodes.neon_world3.material}
           position={[26.27, 73.23, -44.31]}
-        />
+        >
+            <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_world4.geometry}
           material={nodes.neon_world4.material}
           position={[30.52, 74, -44.31]}
-        />
+        >
+            <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
         <mesh
           castShadow
           receiveShadow
           geometry={nodes.neon_world5.geometry}
           material={nodes.neon_world5.material}
           position={[33.9, 73.39, -44.29]}
-        />
+        >
+            <meshBasicMaterial castShadow receiveShadow color="white" attach="material" transparent opacity={0.7} />
+        </mesh>
       </group>
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.pic_main1.geometry}
-        material={nodes.pic_main1.material}
-        position={[-44.75, 44.5, 35.25]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.pic_main2.geometry}
-        material={nodes.pic_main2.material}
-        position={[-44.75, 58, 36.75]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.pic_main3.geometry}
-        material={nodes.pic_main3.material}
-        position={[-44.75, 53.5, 22.75]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.pic_side2.geometry}
-        material={nodes.pic_side2.material}
-        position={[-44.65, 58, 36.75]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.pic_side3.geometry}
-        material={nodes.pic_side3.material}
-        position={[-44.65, 53.5, 22.75]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.plant_body1.geometry}
-        material={nodes.plant_body1.material}
+
+      <mesh onClick={() => window.open(localStorage.getItem('githubLink'), '_blank')}
+        onPointerOver={() => (setHover(true))}
+        onPointerOut={() => setHover(false)}
+        castShadow receiveShadow position={[-44.75, 44.5, 35.75]} rotation={[0,Math.PI/2,0]} >
+        <boxBufferGeometry args={[10,10,1]} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" map={githubTexture}/>
+        <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+      </mesh>
+
+      <group
+        onClick={() => window.open(localStorage.getItem('piclongLink'), '_blank')}
+        onPointerOver={() => (setHover(true))}
+        onPointerOut={() => setHover(false)}
+        castShadow receiveShadow>
+        <mesh castShadow receiveShadow geometry={nodes.pic_side2.geometry} material={nodes.pic_side2.material}
+          position={[-44.65, 58, 36.75]} />
+        <mesh castShadow receiveShadow position={[-44.75, 58, 36.75]} rotation={[0,Math.PI/2,0]}>
+          <boxBufferGeometry args={[11,14,0.5]} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" map={reactTexture}/>
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+        </mesh>
+      </group>
+
+      <group
+        onClick={() => window.open(localStorage.getItem('picshortLink'), '_blank')}
+        onPointerOver={() => (setHover(true))}
+        onPointerOut={() => setHover(false)}
+        castShadow receiveShadow>
+        <mesh castShadow receiveShadow geometry={nodes.pic_main3.geometry} material={nodes.pic_main3.material}
+          position={[-44.75, 53.5, 22.75]}  />
+        <mesh castShadow receiveShadow position={[-44.65, 53.5, 22.75]} rotation={[0,Math.PI/2,0]}>
+        <boxBufferGeometry args={[10,10,0.5]} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" map={friendTexture}/>
+          <meshBasicMaterial castShadow receiveShadow attachArray="material" color={'#333333'} />
+        </mesh>
+      </group>
+
+
+
+      <mesh castShadow receiveShadow geometry={nodes.plant_body1.geometry} material={nodes.plant_body1.material}
         position={[40.59, 56.81, -34.89]}
       />
       <mesh
@@ -760,18 +881,8 @@ export default function Model(props) {
         material={nodes.plant_soil.material}
         position={[40.27, 45.81, -34.75]}
       />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.rug.geometry}
-        material={nodes.rug.material}
-        position={[15.79, 5.25, 17.8]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.shelf_body.geometry}
-        material={nodes.shelf_body.material}
+
+      <mesh castShadow receiveShadow geometry={nodes.shelf_body.geometry} material={nodes.shelf_body.material}
         position={[-40, 58.5, -1.5]}
       />
       <mesh
@@ -788,27 +899,11 @@ export default function Model(props) {
         material={nodes.shelf_leg2.material}
         position={[-41.5, 54.5, 7.5]}
       />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.shoe_bottom1.geometry}
-        material={nodes.shoe_bottom1.material}
-        position={[26.6, 6.1, 9]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.shoe_bottom2.geometry}
-        material={nodes.shoe_bottom2.material}
-        position={[22.16, 6.1, 21.51]}
-      />
-      <mesh
-        castShadow
-        receiveShadow
-        geometry={nodes.shoe_top1.geometry}
-        material={nodes.shoe_top1.material}
-        position={[26.6, 7.75, 10.8]}
-      />
+
+
+
+
+
       <mesh
         castShadow
         receiveShadow
@@ -816,6 +911,10 @@ export default function Model(props) {
         material={nodes.shoe_top2.material}
         position={[23.85, 7.75, 22.13]}
       />
+      <mesh castShadow receiveShadow geometry={nodes.shoe_bottom2.geometry} material={nodes.shoe_bottom2.material}  position={[22.16, 6.1, 21.51]}/>
+
+
+
       <mesh
         castShadow
         receiveShadow

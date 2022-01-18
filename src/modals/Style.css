@@ -1,0 +1,172 @@
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@500;600;700;800&display=swap');
+
+.logoWrapper {
+    position: absolute;
+    top : 3vh;
+    left : 8vh;
+}
+
+.logo {
+    width : 14vh;
+    height : 14vh;
+}
+
+.iconWrapper {
+    position: absolute;
+    top : 6vh;
+    right : 7vh;
+}
+
+.icon {
+    width : 3.5vh;
+    height : 3.5vh;
+}
+.icon:hover {
+    cursor : pointer;
+}
+
+.settingModal {
+    position: absolute;
+    top : 12vh;
+    right : 7vh;
+    transition: 0.8s linear;
+    opacity: 0.8;
+    visibility: visible;
+
+    width : 25vh;
+    height: 35vh;
+    border-radius: 2vh;
+    background-color: whitesmoke;
+
+    box-shadow: 2px 2px 15px 3px rgba(0, 0, 0, 0.2);
+
+    display : flex;
+    flex-direction: column;
+}
+
+.empty {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.modal {
+    width: 100%;
+    height : 100%;
+
+}
+
+.tabbar {
+    display : flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-evenly;
+    padding-top: 2vh;
+
+}
+
+.tabicon {
+    width : 3.5vh;
+    height : 3.5vh;
+}
+
+.tabicon:hover {
+    cursor : pointer;
+}
+
+.settingScreen {
+    flex : 1;
+    margin : 1vh;
+}
+
+.screenWrapper {
+    display : flex;
+    flex-direction: column;
+
+}
+
+.screenTitle {
+    font-size: 2vh;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 800;
+    padding : 0.5vh;
+    color: #555555;
+
+}
+
+.screen {
+    display: flex;
+    flex-direction: column;
+    padding-top : 1vh;
+    align-items: center;
+    justify-content: space-around;
+}
+
+
+.slideButton {
+    display: flex;
+    flex-direction: row;
+    background-color: white;
+    opacity: 1;
+}
+
+
+.canvasWrapper {
+    display: flex;
+    flex-direction: row;
+    position : absolute;
+    z-index: 10;
+    top : 18vh;
+    left : 6vh;
+    opacity: 0.7;
+
+}
+
+.canvasBrush {
+    display: flex;
+    flex-direction: column;
+    margin-left: 1vh;
+    justify-content: center;
+}
+
+.colorItem {
+    width : 6vh;
+    height: 6vh;
+    border-radius: 3vh;
+    margin : 0.3vh;
+}
+.colorItem:hover{
+    cursor : pointer;
+}
+
+.linkInput {
+    width : 80%;
+    border-width: 0px;
+    height : 4vh;
+    border-radius: 2vh;
+    outline: none;
+
+    padding-left: 1vh;
+    padding-right: 1vh;
+    margin-bottom : 1vh;
+
+    box-shadow: inset 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
+
+    font-family: 'Raleway', sans-serif;
+    font-weight: 500;
+}
+
+.applyButton {
+    width : 4vh;
+    height : 4vh;
+    border-radius: 2.7vh;
+    background-color: #dddddd;
+    padding : 1vh;
+}
+.applyButton:hover {
+    width : 4.1vh;
+    height : 4.1vh;
+    cursor: pointer;
+    background-color: #555555;
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.1);
+
+}
