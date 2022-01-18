@@ -14,7 +14,7 @@ Making 3D room with interactive features
 
 ![image](https://user-images.githubusercontent.com/79900341/149933676-934bf9a8-aba6-430c-a365-7d4158a2cf13.png)
 
-가장 널리 사용되는 3D 모델링 툴인 blender는 디자이너에게 무한에 가까운 자유도를 제공하는 강력한 기능들을 가지고 있지만, 초보자가 직관적으로 사용하기에는 어렵다.
+가장 널리 사용되는 3D 모델링 툴인 blender는 디자이너에게 무한에 가까운 자유도를 제공하는 강력한 기능들을 가지고 있지만, 초보자가 직관적으로 사용하기에는 다소 어렵다.
 
 따라서 조금 더 직관적인 모델링을 제공하는 Autodesk의 Fusion 360을 이용해 기본적인 3D 객체를 제작했다.
 
@@ -27,6 +27,12 @@ Making 3D room with interactive features
 Fusion 360에서 모델링한 3D 객체를 가져온 뒤, blender 자체적으로 제공하는 조명 기능을 활용해 적절한 환경을 조성했다.
 
 이 환경을 기반으로 표면의 색깔과 질감을 생성하고 gltf 포맷으로 내보냈다.
+
+### c) react-three-fiber
+
+생성된 gltf 파일을 gltfjsx 툴을 이용해 react-three-fiber에서 바로 사용할 수 있는 js 형식의 파일로 변환했다.
+
+
 
 ## 3. Features
 
