@@ -12,6 +12,14 @@ Making 3D room with interactive features
 
 ### a) Fusion 360
 
+![image](https://user-images.githubusercontent.com/79900341/149932898-b62ef2e8-31a7-4cc7-afbb-09e261e3707a.png)
+
+가장 널리 사용되는 3D 모델링 툴인 blender는 디자이너에게 무한에 가까운 자유도를 제공하는 강력한 기능들을 가지고 있지만, 초보자가 직관적으로 사용하기에는 어렵다.
+
+따라서 조금 더 직관적인 모델링을 제공하는 Autodesk의 Fusion 360을 이용해 기본적인 3D 객체를 제작했다.
+
+제작한 객체는 .fbx 확장자로 내보낸 뒤, blender에서 후처리 과정을 진행했다.
+
 ### b) blender
 
 ![image](https://user-images.githubusercontent.com/79900341/149932233-d4dcc1b6-152d-494b-a2d3-2385c46316bc.png)
