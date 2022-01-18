@@ -1,9 +1,10 @@
 # CS496-MadCamp-Week-3
+# Developer's Room
 
 
 Making 3D room with interactive features
 
-##### made by. 김수효, 이혜원
+##### made by. 김수효, 이혜원(일어나)
 
 
 ## 1. Basic structure
@@ -39,6 +40,8 @@ Fusion 360에서 모델링한 3D 객체를 가져온 뒤, blender 자체적으�
 ## 3. Features
 
 ### a) Youtube
+
+컴퓨터 화면과 세 개의 버튼을 이용해 유튜브의 영상을 재생하고, 조작하고, 플레이리스트를 제작할 수 있다.
 
 ### b) PaintBrush
 
