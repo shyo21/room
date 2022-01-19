@@ -1,0 +1,21 @@
+{
+  "files": {
+    "main.css": "/room/static/css/main.3af1afc8.css",
+    "main.js": "/room/static/js/main.f12d3001.js",
+    "static/js/787.19a8c85b.chunk.js": "/room/static/js/787.19a8c85b.chunk.js",
+    "static/media/Helloworld_logo.svg": "/room/static/media/Helloworld_logo.09ac1fa879e4daa31ec9bd10c4d66efc.svg",
+    "static/media/helloworld_star.svg": "/room/static/media/helloworld_star.85501c43e6f011d6f600b8bf9433d7a6.svg",
+    "static/media/helloworld_rocket.svg": "/room/static/media/helloworld_rocket.dbed7a1c79ec7082538941569da79bf9.svg",
+    "index.html": "/room/index.html",
+    "static/media/icon_yes.svg": "/room/static/media/icon_yes.7e1c44f20d681d7e56a20cb7072449ed.svg",
+    "static/media/Helloworld_icon.svg": "/room/static/media/Helloworld_icon.8782a779989f88df9d6b3f6d876c2d69.svg",
+    "static/media/helloworld_music.svg": "/room/static/media/helloworld_music.dfe8991275f5536198a72651c56fc306.svg",
+    "main.3af1afc8.css.map": "/room/static/css/main.3af1afc8.css.map",
+    "main.f12d3001.js.map": "/room/static/js/main.f12d3001.js.map",
+    "787.19a8c85b.chunk.js.map": "/room/static/js/787.19a8c85b.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.3af1afc8.css",
+    "static/js/main.f12d3001.js"
+  ]
+}
